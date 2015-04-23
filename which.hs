@@ -13,8 +13,7 @@ wordsWhen prd str = case dropWhile prd str of
 getMatch :: String -> [String] -> Maybe String
 getMatch spec pathItems = case filter (endswith spec) pathItems of
                             [] -> Nothing
-                            [something] -> Just something
-                            _ -> Nothing -- Kinda lame
+                            (m:ms) -> Just m -- Get the first match
 
 main :: IO ()
 main = do
