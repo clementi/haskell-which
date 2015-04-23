@@ -10,8 +10,11 @@ wordsWhen prd str = case dropWhile prd str of
                       str' -> word : wordsWhen prd str''
                               where (word, str'') = break prd str'
 
+isExecutable :: String -> Bool
+isExecutable x = any (\p -> endswith p x) [".exe", ".com", ".bat", ".cmd"]
+
 getMatch :: String -> [String] -> Maybe String
-getMatch spec pathItems = case filter (endswith spec) pathItems of
+getMatch spec pathItems = case filter (\p -> isExecutable p && endswith spec p) pathItems of
                             [] -> Nothing
                             (m:ms) -> Just m -- Get the first match
 
@@ -23,7 +26,6 @@ main = do
   let pathDirs = wordsWhen (==searchPathSeparator) path
   pathItems <- mapM getDirectoryContents pathDirs
   let filteredPathItems = filter (\p -> p `notElem` [".", ".."]) $ concat pathItems
---  putStrLn $ unlines filteredPathItems
   let match = getMatch spec filteredPathItems
   case match of
     Nothing -> putStrLn "Not found."
