@@ -11,11 +11,10 @@ wordsWhen prd str = case dropWhile prd str of
                               where (word, str'') = break prd str'
 
 getMatch :: String -> [String] -> Maybe String
-getMatch spec pathItems = case matches of
+getMatch spec pathItems = case filter (endswith spec) pathItems of
                             [] -> Nothing
                             [something] -> Just something
-                            _ -> Nothing
-    where matches = filter (endswith spec) pathItems
+                            _ -> Nothing -- Kinda lame
 
 main :: IO ()
 main = do
