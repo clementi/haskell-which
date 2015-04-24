@@ -27,6 +27,7 @@ main = do
   pathItems <- mapM getDirectoryContents pathDirs
   let filteredPathItems = filter (\p -> p `notElem` [".", ".."]) $ concat pathItems
   let match = getMatch spec filteredPathItems
+  progName <- getProgName
   case match of
-    Nothing -> putStrLn "Not found."
+    Nothing -> putStrLn (progName ++ ": no " ++ spec ++ " in (" ++ path ++ ")")
     Just m -> putStrLn m
