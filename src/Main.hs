@@ -16,9 +16,10 @@ isExecutable :: String -> Bool
 isExecutable x = any (\p -> endswith p x) [".exe", ".com", ".bat", ".cmd"]
 
 getMatch :: String -> [String] -> Maybe String
-getMatch spec pathItems = case filter (\p -> last (wordsWhen (==pathSeparator) p) == spec) pathItems of
-                            [] -> Nothing
-                            (m:ms) -> Just m -- Get the first match
+getMatch spec pathItems = let pathParts = wordsWhen (==pathSeparator) in
+    case filter (\p -> last (pathParts p) == spec) pathItems of
+      [] -> Nothing
+      (m:ms) -> Just m -- Get the first match
 
 main :: IO ()
 main = do
