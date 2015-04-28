@@ -1,11 +1,10 @@
 import Control.Applicative
-import Control.Monad (filterM, mapM)
-import System.Directory (getDirectoryContents, getCurrentDirectory, doesDirectoryExist)
+import Control.Monad (filterM)
+import System.Directory (getDirectoryContents, doesDirectoryExist)
 import System.Environment
 import System.FilePath
 import System.Info
 import Data.List (intercalate)
-import Data.String.Utils (endswith)
 
 wordsWhen :: (Char -> Bool) -> String -> [String]
 wordsWhen prd str = case dropWhile prd str of
@@ -22,7 +21,7 @@ getMatch :: String -> [String] -> Maybe String
 getMatch spec pathItems = let pathParts = wordsWhen (==pathSeparator) in
     case filter (\p -> any (\n -> last (pathParts p) == n) (map (spec++) extensions)) pathItems of
       [] -> Nothing
-      (m:ms) -> Just m -- Get the first match
+      (m:_) -> Just m -- Get the first match
 
 main :: IO ()
 main = do
