@@ -1,8 +1,9 @@
 import Control.Applicative
-import Control.Monad (forM, mapM)
-import System.Directory (getDirectoryContents, getCurrentDirectory)
+import Control.Monad (filterM, mapM)
+import System.Directory (getDirectoryContents, getCurrentDirectory, doesDirectoryExist)
 import System.Environment
 import System.FilePath
+import System.Info
 import Data.List (intercalate)
 import Data.String.Utils (endswith)
 
@@ -12,12 +13,14 @@ wordsWhen prd str = case dropWhile prd str of
                       str' -> word : wordsWhen prd str''
                               where (word, str'') = break prd str'
 
-isExecutable :: String -> Bool
-isExecutable x = any (\p -> endswith p x) [".exe", ".com", ".bat", ".cmd"]
+extensions :: [String]
+extensions = if os == "mingw32"
+             then ["", ".exe", ".cmd", ".bat"]
+             else [""]
 
 getMatch :: String -> [String] -> Maybe String
 getMatch spec pathItems = let pathParts = wordsWhen (==pathSeparator) in
-    case filter (\p -> last (pathParts p) == spec) pathItems of
+    case filter (\p -> any (\n -> last (pathParts p) == n) (map (spec++) extensions)) pathItems of
       [] -> Nothing
       (m:ms) -> Just m -- Get the first match
 
@@ -27,7 +30,8 @@ main = do
   path <- getEnv "PATH"
   let spec = head args
   let pathDirs = "." : wordsWhen (==searchPathSeparator) path
-  pathItems <- concat <$> mapM (\pd -> map (pd </>) <$> getDirectoryContents pd) pathDirs
+  validPathDirs <- filterM doesDirectoryExist pathDirs
+  pathItems <- concat <$> mapM (\pd -> map (pd </>) <$> getDirectoryContents pd) validPathDirs
   let filteredPathItems = filter (\p -> p `notElem` [".", ".."]) $ pathItems
   let match = getMatch spec filteredPathItems
   progName <- getProgName
